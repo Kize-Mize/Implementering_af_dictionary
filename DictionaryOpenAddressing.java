@@ -1,4 +1,4 @@
-public class DictionaryOpenAddressing<K, V> {
+public class DictionaryOpenAddressing<K, V> implements Dictionary<K, V> {
 
     private static class Entry<K, V> {
         K key;
@@ -25,27 +25,19 @@ public class DictionaryOpenAddressing<K, V> {
         return Math.abs(key.hashCode()) % table.length;
     }
 
+    @Override
     public V put(K key, V value) {
         int index = hash(key);
-        int start = index;
 
-        while (table[index] != null) {
-            if (table[index] != DELETED && table[index].key.equals(key)) {
+        while (table[index] != null && table[index] != DELETED) {
+
+            if (table[index].key.equals(key)) {
                 V old = table[index].value;
                 table[index].value = value;
                 return old;
             }
 
-            if (table[index] == DELETED) {
-                table[index] = new Entry<>(key, value);
-                size++;
-                return null;
-            }
-
             index = (index + 1) % table.length;
-            if (index == start) {
-                return null;
-            }
         }
 
         table[index] = new Entry<>(key, value);
@@ -53,29 +45,28 @@ public class DictionaryOpenAddressing<K, V> {
         return null;
     }
 
+    @Override
     public V get(K key) {
         int index = hash(key);
-        int start = index;
 
         while (table[index] != null) {
+
             if (table[index] != DELETED && table[index].key.equals(key)) {
                 return table[index].value;
             }
 
             index = (index + 1) % table.length;
-            if (index == start) {
-                break;
-            }
         }
 
         return null;
     }
 
+    @Override
     public V remove(K key) {
         int index = hash(key);
-        int start = index;
 
         while (table[index] != null) {
+
             if (table[index] != DELETED && table[index].key.equals(key)) {
                 V old = table[index].value;
                 table[index] = DELETED;
@@ -84,18 +75,17 @@ public class DictionaryOpenAddressing<K, V> {
             }
 
             index = (index + 1) % table.length;
-            if (index == start) {
-                break;
-            }
         }
 
         return null;
     }
 
+    @Override
     public int size() {
         return size;
     }
 
+    @Override
     public boolean isEmpty() {
         return size == 0;
     }
